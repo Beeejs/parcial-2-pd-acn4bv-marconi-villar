@@ -4,6 +4,8 @@ import 'dotenv/config';
 import express from 'express';
 /* Cors */
 import cors from 'cors';
+/* Rutas */
+import productRouter from './routes/products.js';
 
 // Configuracion
 const PORT = process.env.PORT || 3000;
@@ -16,6 +18,9 @@ app.use(cors(
 ))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Rutas
+app.use('/api/products', productRouter);
 
 // Listen
 app.listen(PORT, () => {
