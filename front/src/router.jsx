@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import AuthPage from "./pages/Auth";
 import ErrorPage from "./pages/Error";
 import Products from "./pages/Products";
+import ProductABM from "./pages/ProductABM";
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
       {
         path: "/products",
         element: <Products/>
+      },
+      {
+        path: "/productAbm",
+        element: <ProductABM/>
       },
     ]
   },
