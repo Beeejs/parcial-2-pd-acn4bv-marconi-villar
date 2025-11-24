@@ -1,3 +1,5 @@
+// api/controllers/products.js
+
 // Importa la instancia de Firestore desde tu archivo de configuración
 import { db } from '../database/firebase.js';
 
@@ -65,3 +67,89 @@ export const getProducts = async (req, res) => {
     res.status(500).json({ status: false, message: 'Error interno del servidor' });
   }
 };
+
+// getOne
+export const getProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const ref = db.collection(NAME_COLLECTION).doc(id);
+    const snapshot = await ref.get();
+
+    if (!snapshot.exists) {
+      return res.status(200).json({
+        status: false,
+        data: [],
+        message: "Producto no encontrado"
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: "Producto obtenido correctamente",
+      data: {
+        docId: snapshot.id,
+        ...snapshot.data()
+      }
+    });
+
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({
+      status: false,
+      message: "Error interno del servidor"
+    });
+  }
+};
+
+// create
+export const createProduct = async (req, res) => {
+  try {
+    const productRef = await db.collection(NAME_COLLECTION).add(req.body);
+    res.status(200).json({ status: true, message: 'Producto creado correctamente', data: { docId: productRef.id, ...req.body } });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ status: false, message: 'Error interno del servidor' });
+  }
+};
+
+// update
+export const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = { ...req.body }; // clonamos
+    
+    // SI ES CONSOLA borramos platform y genre
+    if (updateData.category === 'consoles') {
+      updateData.platform = admin.firestore.FieldValue.delete();
+      updateData.genre = admin.firestore.FieldValue.delete();
+    }
+
+    const docRef = db.collection(NAME_COLLECTION).doc(id);
+
+    await docRef.update(updateData);
+
+    const snapshot = await docRef.get();
+
+    if (!snapshot.exists) {
+      return res.status(200).json({
+        status: false,
+        message: 'Producto no encontrado'
+      });
+    }
+
+    res.status(200).json({
+      status: true,
+      message: 'Producto actualizado correctamente',
+      data: {
+        docId: snapshot.id,
+        ...snapshot.data()
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: false, message: 'Error interno del servidor' });
+  }
+};
+
