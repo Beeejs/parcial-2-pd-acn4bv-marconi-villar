@@ -3,10 +3,11 @@ import { createBrowserRouter } from "react-router-dom";
 /* Pages */
 import Layout from "./Layout";
 import Home from "./pages/Home";
-import AuthPage from "./pages/Auth";
-import ErrorPage from "./pages/Error";
 import Products from "./pages/Products";
+import AuthPage from "./pages/Auth";
 import ProductABM from "./pages/ProductABM";
+import ErrorPage from "./pages/Error";
+import ProductForm from "./components/products/ProductForm";
 
 export const router = createBrowserRouter([
   {
@@ -28,6 +29,14 @@ export const router = createBrowserRouter([
         path: "/productAbm",
         element: <ProductABM/>
       },
+      {
+        path: "/products/new",
+        element: <ProductForm />,
+      },
+      {
+        path: "/products/:id",
+        element: <ProductForm />,
+      }
     ]
   },
   {

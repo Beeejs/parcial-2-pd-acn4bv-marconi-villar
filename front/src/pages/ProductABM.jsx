@@ -1,6 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
 /* Hooks */
 import { useGetData } from "../hooks/useGetData";
+import { usePostData } from "../hooks/usePostData";
+/* React Router */
+import { useNavigate } from "react-router-dom";
 /* MUI */
 import {
   Button,
@@ -22,6 +25,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 /* Components */
 import Loader from "../components/Loader";
+import Swal from 'sweetalert2'
 
 const ProductABM = () => {
   const { action, responseData } = useGetData();
@@ -29,9 +33,28 @@ const ProductABM = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(0);
 
+  const navigate = useNavigate();
+
+  const { action: actionPostUpdate, responseData: responseDataPostUpdate } = usePostData();
+
   useEffect(() => {
     action("/products/getAll");
   }, []);
+
+  useEffect(() => {
+    if(responseDataPostUpdate && responseDataPostUpdate.status === true){
+      Swal.fire({
+        title: 'Producto actualizado',
+        text: 'Se actualizo el estado del producto!',
+        icon: 'success',
+        confirmButtonText: 'Aceptar'
+      })
+
+      // Reload
+      action("/products/getAll");
+    }
+
+  }, [responseDataPostUpdate])
 
   const filteredProducts = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -51,6 +74,18 @@ const ProductABM = () => {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const handleNewProduct = () => {
+    navigate("/products/new");
+  };
+
+  const handleViewProduct = (product) => {
+    navigate(`/products/${product.docId}`);
+  };
+
+  const handleDeleteProduct = (product) => {
+    actionPostUpdate(`/products/update/${product.docId}`, { status: !product.status });
   };
 
   const handleSearchChange = (e) => {
@@ -86,6 +121,7 @@ const ProductABM = () => {
             <Button
               variant="contained"
               startIcon={<AddIcon />}
+              onClick={handleNewProduct}
               classes={{
                 root: `
                   !text-secondary
@@ -168,12 +204,14 @@ const ProductABM = () => {
                           >
                             <IconButton
                               size="small"
+                              onClick={() => handleViewProduct(product)}
                             >
                               <VisibilityIcon fontSize="small" />
                             </IconButton>
                             <IconButton
                               size="small"
                               color="error"
+                              onClick={() => handleDeleteProduct(product)}
                             >
                               {
                                 product.status ? (
@@ -226,3 +264,4 @@ const ProductABM = () => {
 };
 
 export default ProductABM;
+
