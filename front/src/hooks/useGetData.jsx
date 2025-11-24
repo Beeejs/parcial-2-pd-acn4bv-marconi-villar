@@ -42,7 +42,7 @@ export const useGetData = () => {
         setResponseData(data);
       } catch (err) {
         console.error(err);
-        navigate("/error", { state: { code: response.status, message: data.message } });
+        navigate("/error", { state: { code: 500, message: err.message } });
       } finally {
         setLoading(false);
       }
