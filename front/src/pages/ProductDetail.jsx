@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 /* MUI */
 import { Button, IconButton, Chip } from "@mui/material";
@@ -6,15 +6,21 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 /* Components */
+import Swal from "sweetalert2";
 import Loader from "../components/Loader";
 /* Utils */
 import { formattedPrice } from "../utils/helper";
 /* Hooks */
+import { usePostData } from "../hooks/usePostData";
 import { useGetData } from "../hooks/useGetData";
+/* Context */
+import { CartData } from "../context/CartContext";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const { refreshCart } = useContext(CartData);
   const { action, responseData, loading } = useGetData();
+  const { action: actionAddProductToCart, responseData: responseDataAddProductToCart } = usePostData();
 
   const [quantity, setQuantity] = useState(1);
 
@@ -27,6 +33,27 @@ const ProductDetail = () => {
   const handleIncrease = () => setQuantity((q) => q + 1);
   const handleDecrease = () =>
     setQuantity((q) => (q > 1 ? q - 1 : 1));
+
+  const handleAddToCart = async () => {
+    actionAddProductToCart("/cart/add", {
+      idProducto: id,
+      cantidad: quantity,
+      fechaAgregado: new Date().toISOString()
+    });
+  }
+
+  useEffect(() => {
+    if(responseDataAddProductToCart)
+    {
+      refreshCart();
+      Swal.fire({
+        title: 'Producto agregado al carrito',
+        text: 'El producto se ha agregado al carrito!',
+        icon: 'success',
+        confirmButtonText: 'Aceptar'
+      })
+    }
+  }, [responseDataAddProductToCart])
 
   return (
     <section className="flex flex-col justify-center items-center gap-12 h-full my-12">
@@ -108,6 +135,7 @@ const ProductDetail = () => {
                     variant="contained"
                     startIcon={<AddShoppingCartIcon />}
                     className="!bg-game-flame-oscuro !text-white hover:!bg-game-flame-sombra !rounded-md"
+                    onClick={handleAddToCart}
                   >
                     Agregar al carrito
                   </Button>

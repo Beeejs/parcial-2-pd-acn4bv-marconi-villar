@@ -1,14 +1,44 @@
+import { useContext, useEffect } from "react";
 /* MUI */
 import { Badge, Button, IconButton } from "@mui/material";
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+/* Hooks */
+import { usePostData } from "../../hooks/usePostData";
+/* Context */
+import { CartData } from "../../context/CartContext";
+/* Swal */
+import Swal from "sweetalert2";
 
 const ProductCard = ({ product }) => {
   const { docId, title, img } = product;
+  const { action: actionAddProductToCart, responseData: responseDataAddProductToCart } = usePostData();
+  const { refreshCart } = useContext(CartData);
+
+  useEffect(() => {
+    if(responseDataAddProductToCart)
+    {
+      refreshCart();
+      Swal.fire({
+        title: 'Producto agregado al carrito',
+        text: 'El producto se ha agregado al carrito!',
+        icon: 'success',
+        confirmButtonText: 'Aceptar'
+      })
+    }
+  }, [responseDataAddProductToCart])
+
+  const handleAddToCart = async () => {
+    actionAddProductToCart("/cart/add", {
+      idProducto: docId,
+      cantidad: 1,
+      fechaAgregado: new Date().toISOString()
+    });
+  }
 
   return (
     <article class="flex flex-col justify-center items-center w-72 h-72 gap-4 bg-secondary/80 rounded-md shadow p-4 hover:scale-105 hover:bg-secondary transition-all duration-300">
       <div className="flex items-center justify-end w-full">
-        <IconButton>
+        <IconButton onClick={handleAddToCart}>
           <Badge
             badgeContent={0}
             color="error"

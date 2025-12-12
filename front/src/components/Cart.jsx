@@ -1,3 +1,4 @@
+import { useContext, useEffect } from "react";
 /* MUI */
 import {
   Drawer,
@@ -12,16 +13,57 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+/* Context */
+import { CartData } from "../context/CartContext";
 /* Utils */
 import { formattedPrice } from "../utils/helper";
+/* Hooks */
+import { usePostData } from "../hooks/usePostData";
 
 const Cart = ({
   open,
   onClose
 }) => {
-  const cart = [];
+  const { cart, refreshCart } = useContext(CartData);
+  const { action: actionAddProductToCart, responseData: responseDataAddProductToCart } = usePostData();
+  const { action: actionUpdateProductToCart, responseData: responseDataUpdateProductToCart } = usePostData();
+  const { action: actionDeleteProductToCart, responseData: responseDataDeleteProductToCart } = usePostData();
 
   const total = cart?.reduce((acc, item) => acc + (item.price * item.cantidad), 0) || 0;
+
+  const handleAddToCart = async (id) => {
+    actionAddProductToCart("/cart/add", {
+      idProducto: id,
+      cantidad: 1,
+      fechaAgregado: new Date().toISOString()
+    });
+  }
+
+  const handleDecreaseFromCart = async (id, cantidad) => {
+    if(cantidad <= 1){
+      actionDeleteProductToCart(`/cart/delete/${id}`);
+      return;
+    }
+    
+    actionUpdateProductToCart(`/cart/item/${id}`, {
+      cantidad: cantidad - 1
+    });
+  }
+
+  const handleDeleteFromCart = async (id) => {
+    actionDeleteProductToCart(`/cart/delete/${id}`);
+  }
+
+  const handleOnClear = async () => {
+    actionDeleteProductToCart("/cart/clear");
+  }
+
+  useEffect(() => {
+    if(responseDataAddProductToCart || responseDataUpdateProductToCart || responseDataDeleteProductToCart)
+    {
+      refreshCart();
+    }
+  }, [responseDataAddProductToCart, responseDataUpdateProductToCart, responseDataDeleteProductToCart])
 
   return (
     <Drawer
@@ -100,6 +142,7 @@ const Cart = ({
                   <div className="flex items-center gap-1 border border-gray-500 rounded px-1">
                     <IconButton
                       size="small"
+                      onClick={() => handleDecreaseFromCart(item.cartItemId, item.cantidad)}
                     >
                       <RemoveIcon fontSize="small" sx={{ color: "white" }} />
                     </IconButton>
@@ -108,6 +151,7 @@ const Cart = ({
                     </span>
                     <IconButton
                       size="small"
+                      onClick={() => handleAddToCart(item.idProducto)}
                     >
                       <AddIcon fontSize="small" sx={{ color: "white" }} />
                     </IconButton>
@@ -126,6 +170,7 @@ const Cart = ({
               {/* Borrar */}
               <IconButton
                 size="small"
+                onClick={() => handleDeleteFromCart(item.cartItemId)}
                 sx={{ ml: 0.5 }}
               >
                 <DeleteIcon fontSize="small" sx={{ color: "#F87171" }} />
@@ -152,6 +197,7 @@ const Cart = ({
           <Button
             variant="outlined"
             fullWidth
+            onClick={handleOnClear}
             sx={{
               textTransform: "none",
               borderColor: "#F87171",
