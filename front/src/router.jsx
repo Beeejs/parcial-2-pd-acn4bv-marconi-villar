@@ -9,6 +9,7 @@ import ProductABM from "./pages/ProductABM";
 import ErrorPage from "./pages/Error";
 import ProductForm from "./components/products/ProductForm";
 import ContactPage from "./pages/Contact";
+import ProductDetail from "./pages/ProductDetail";
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ export const router = createBrowserRouter([
       {
         path: "/products/:id",
         element: <ProductForm />,
+      },
+      {
+        path: "/productDetail/:id",
+        element: <ProductDetail />,
       },
       {
         path: '/contact',
