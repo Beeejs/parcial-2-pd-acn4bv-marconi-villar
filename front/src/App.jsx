@@ -6,13 +6,16 @@ import { router } from './router'
 import ProductContext from './context/ProductContext'
 import FilterContext from './context/FilterContext'
 import AuthProvider from './context/AuthContext'
+import CartContext from './context/CartContext'
 
 const App = () => {
   return (
     <ProductContext>
         <FilterContext>
           <AuthProvider>
-            <RouterProvider router={router} />
+            <CartContext>
+              <RouterProvider router={router} />
+            </CartContext>
           </AuthProvider>
         </FilterContext>
     </ProductContext>

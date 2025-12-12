@@ -2,6 +2,7 @@
 import { useContext, useState } from "react";
 /* Components */
 import Swal from "sweetalert2";
+import Cart from "./Cart.jsx";
 /* MUI */
 import {
   Drawer,
@@ -14,11 +15,13 @@ import {
   TextField,
   Button,
   Box,
+  Badge,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from '@mui/icons-material/Login';
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 /* React router dom */
 import { Link, useNavigate } from "react-router-dom";
 /* Constants */
@@ -37,6 +40,7 @@ const Navbar = () => {
 
   const [search, setSearch] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
 
   const handleOnChange = (e) => {
     const value = e.target.value;
@@ -68,6 +72,8 @@ const Navbar = () => {
     await logout();
     navigate("/auth");
   };
+
+  const handleToggleCart = () => setCartOpen((prev) => !prev);
 
   return (
     <>
@@ -170,6 +176,22 @@ const Navbar = () => {
                   </li>
                 )
               }
+              <li>
+                <IconButton onClick={handleToggleCart} sx={{ color: "white" }}>
+                  <Badge
+                    badgeContent={0}
+                    color="error"
+                    sx={{
+                      "& .MuiBadge-badge": {
+                        fontFamily: "Poppins, sans-serif",
+                        fontSize: "0.7rem",
+                      },
+                    }}
+                  >
+                    <ShoppingCartIcon />
+                  </Badge>
+                </IconButton>
+              </li>
               <li
                 onClick={handleLogout}
                 className="cursor-pointer flex justify-cetner gap-2 items-center font-secondary text-base text-white hover:text-gray-200 transition-colors duration-300"
@@ -329,8 +351,26 @@ const Navbar = () => {
               }}
             />
           </ListItemButton>
+           <ListItemButton onClick={handleToggleCart}>
+            <ListItemIcon sx={{ color: "white", minWidth: 36 }}>
+              <ShoppingCartIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Carrito"
+              primaryTypographyProps={{
+                fontFamily: "Poppins, sans-serif",
+              }}
+            />
+          </ListItemButton>
         </List>
       </Drawer>
+
+      {/* CART DRAWER */}
+      <Cart
+        open={cartOpen}
+        onClose={handleToggleCart}
+      />
+
     </>
   );
 };
