@@ -9,6 +9,7 @@ import { dirname } from 'path';
 /* Routes */
 import productRouter from './api/routes/products.js';
 import userRouter from './api/routes/users.js';
+import cartRouter from './api/routes/cart.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -25,6 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 // Rutas
 app.use('/products', productRouter);
 app.use('/users', userRouter);
+app.use('/cart', cartRouter);
 
 // Cualquier ruta que no sea back, devolvera el index.html
 app.get('/{*splat}', (req, res) => {
