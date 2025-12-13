@@ -8,6 +8,8 @@ import cors from 'cors';
 import productRouter from './routes/products.js';
 import userRouter from './routes/users.js';
 import cartRouter from './routes/cart.js';
+/* Middlewares */
+import { errorHandler } from './middlewares/errrorHandler.js';
 
 // Configuracion
 const PORT = process.env.PORT || 3000;
@@ -25,6 +27,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/products', productRouter);
 app.use('/api/users', userRouter);
 app.use('/api/cart', cartRouter);
+
+// Middleware de manejo de errores
+app.use(errorHandler);
 
 // Listen
 app.listen(PORT, () => {

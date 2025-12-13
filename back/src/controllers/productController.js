@@ -2,6 +2,10 @@
 
 // Importa la instancia de Firestore desde tu archivo de configuración
 import { db, admin } from '../database/firebase.js';
+import {
+  createProductSchema,
+  updateProductSchema,
+} from "../validators/ProductValidator.js";
 
 const NAME_COLLECTION = 'productos';
 
@@ -105,8 +109,21 @@ export const getProduct = async (req, res) => {
 // create
 export const createProduct = async (req, res) => {
   try {
-    const productRef = await db.collection(NAME_COLLECTION).add(req.body);
-    res.status(200).json({ status: true, message: 'Producto creado correctamente', data: { docId: productRef.id, ...req.body } });
+    // Validamos el body
+    const parsed = createProductSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        status: false,
+        message: "Datos inválidos para crear el producto",
+        errors: parsed.error.flatten(),
+      });
+    }
+
+    const productData = parsed.data;
+
+    const productRef = await db.collection(NAME_COLLECTION).add(productData);
+    res.status(200).json({ status: true, message: 'Producto creado correctamente', data: { docId: productRef.id, ...productData } });
   } catch (error) {
     console.log(error)
     res.status(500).json({ status: false, message: 'Error interno del servidor' });
@@ -117,7 +134,18 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = { ...req.body }; // clonamos
+    // Validamos body parcial para update
+    const parsed = updateProductSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        status: false,
+        message: "Datos inválidos para actualizar el producto",
+        errors: parsed.error.flatten(),
+      });
+    }
+
+    const updateData = parsed.data;
     
     // SI ES CONSOLA borramos platform y genre
     if (updateData.category === 'consoles') {
