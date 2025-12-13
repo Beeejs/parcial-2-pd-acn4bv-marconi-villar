@@ -19,6 +19,7 @@ import { CartData } from "../context/CartContext";
 import { formattedPrice } from "../utils/helper";
 /* Hooks */
 import { usePostData } from "../hooks/usePostData";
+import Swal from "sweetalert2";
 
 const Cart = ({
   open,
@@ -56,6 +57,19 @@ const Cart = ({
 
   const handleOnClear = async () => {
     actionDeleteProductToCart("/cart/clear");
+  }
+
+  const handleOnFinishPurchase = async () => {
+    // Hacemos compra ficticia
+    handleOnClear();
+    onClose();
+
+    Swal.fire({
+      title: 'La compra se ha realizado con éxito',
+      text: 'Gracias por su compra!',
+      icon: 'success',
+      confirmButtonText: 'Aceptar'
+    })
   }
 
   useEffect(() => {
@@ -213,7 +227,7 @@ const Cart = ({
           <Button
             variant="contained"
             fullWidth
-            /* onClick={onCheckout} */
+            onClick={handleOnFinishPurchase}
             sx={{
               textTransform: "none",
               bgcolor: "#CC0000",
